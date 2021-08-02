@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,6 +83,7 @@ public class MapColorations3 {
         }
 
     }
+
     private int solve() {
         initialColor(graph.getAnyVertex(), new HashSet<>());
         if (vertexToColor.size() != graph.vertexCount()) {
@@ -160,8 +160,7 @@ public class MapColorations3 {
 
     static class Graph {
 
-        private final Map<String, Set<String>> data = new HashMap();
-
+        private final Map<String, Set<String>> data = new HashMap<>();
 
 
         String getAnyVertex() {
@@ -172,7 +171,7 @@ public class MapColorations3 {
             final Graph result = new Graph();
 
             for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
-                for(String otherVertex: entry.getValue()) {
+                for (String otherVertex : entry.getValue()) {
                     result.addEdge(entry.getKey(), otherVertex);
                 }
             }
