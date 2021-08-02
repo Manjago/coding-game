@@ -45,7 +45,7 @@ Netherlands Belgium
  */
 public class MapColorations3 {
 
-    private static final Map<MemoKey, Integer> memo = new HashMap<>();
+    private static final Map<MemoKey, Long> memo = new HashMap<>();
 
     static class MemoKey implements Comparable<MemoKey>{
         final int vertexCount;
@@ -111,7 +111,7 @@ public class MapColorations3 {
 
     }
 
-    private static int solve(final Graph graph, final int colorsAvailable) {
+    private static long solve(final Graph graph, final int colorsAvailable) {
 
         // https://ru.wikipedia.org/wiki/%D0%A5%D1%80%D0%BE%D0%BC%D0%B0%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE%D1%87%D0%BB%D0%B5%D0%BD
 
@@ -128,7 +128,7 @@ public class MapColorations3 {
             } else {
                 //         System.out.print("old graph " + graph + " colorsMax " + colorsAvailable);
                 //         int solve = new MapColorations3(graph, colorsAvailable).solve();
-                int solve = fastSolve(graph.vertexCount(), colorsAvailable);
+                long solve = fastSolve(graph.vertexCount(), colorsAvailable);
                 //         System.out.println(": " + solve + " " + fastSolve(graph.vertexCount(), colorsAvailable));
                 return solve;
             }
@@ -140,19 +140,19 @@ public class MapColorations3 {
 
     }
 
-    private static int fastSolve(int vertexCount, int colorCount) {
+    private static long fastSolve(int vertexCount, int colorCount) {
         if (colorCount < vertexCount) {
             return 0;
         }
 
         final MemoKey memoKey = new MemoKey(vertexCount, colorCount);
         if (memo.containsKey(memoKey)) {
-            System.out.println("hit " + memoKey);
+            //  System.out.println("hit " + memoKey);
             return memo.get(memoKey);
         } else {
-            System.out.println("calc " + memoKey);
+           // System.out.println("calc " + memoKey);
         }
-        int result = 1;
+        long result = 1;
         int mult = colorCount;
         for (int i = 0; i < vertexCount; i++) {
             result = result * mult;
