@@ -1,11 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -46,15 +45,46 @@ Netherlands Belgium
  */
 public class MapColorations3 {
 
-    public static final int NO_COLOR = -1;
-    private final Graph graph;
-    private final int colorsAvailable;
-    private final Map<String, Integer> vertexToColor = new HashMap<>();
-    int answer = 0;
+    private static final Map<MemoKey, Integer> memo = new HashMap<>();
 
-    public MapColorations3(Graph graph, int colorsAvailable) {
-        this.graph = graph;
-        this.colorsAvailable = colorsAvailable;
+    static class MemoKey implements Comparable<MemoKey>{
+        final int vertexCount;
+        final int colorCount;
+
+        MemoKey(int vertexCount, int colorCount) {
+            this.vertexCount = vertexCount;
+            this.colorCount = colorCount;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MemoKey memoKey = (MemoKey) o;
+            return vertexCount == memoKey.vertexCount && colorCount == memoKey.colorCount;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(vertexCount, colorCount);
+        }
+
+        @Override
+        public String toString() {
+            return "MemoKey{" +
+                    "vertexCount=" + vertexCount +
+                    ", colorCount=" + colorCount +
+                    '}';
+        }
+
+        @Override
+        public int compareTo(MemoKey o) {
+            int compare = Integer.compare(vertexCount, o.vertexCount);
+            if (compare != 0) {
+                return compare;
+            }
+            return Integer.compare(colorCount, o.colorCount);
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -96,10 +126,10 @@ public class MapColorations3 {
             } else if (graph.vertexCount() == 1) {
                 return colorsAvailable;
             } else {
-       //         System.out.print("old graph " + graph + " colorsMax " + colorsAvailable);
-       //         int solve = new MapColorations3(graph, colorsAvailable).solve();
+                //         System.out.print("old graph " + graph + " colorsMax " + colorsAvailable);
+                //         int solve = new MapColorations3(graph, colorsAvailable).solve();
                 int solve = fastSolve(graph.vertexCount(), colorsAvailable);
-       //         System.out.println(": " + solve + " " + fastSolve(graph.vertexCount(), colorsAvailable));
+                //         System.out.println(": " + solve + " " + fastSolve(graph.vertexCount(), colorsAvailable));
                 return solve;
             }
         } else {
@@ -114,97 +144,28 @@ public class MapColorations3 {
         if (colorCount < vertexCount) {
             return 0;
         }
+
+        final MemoKey memoKey = new MemoKey(vertexCount, colorCount);
+        if (memo.containsKey(memoKey)) {
+            System.out.println("hit " + memoKey);
+            return memo.get(memoKey);
+        } else {
+            System.out.println("calc " + memoKey);
+        }
         int result = 1;
         int mult = colorCount;
         for (int i = 0; i < vertexCount; i++) {
             result = result * mult;
             mult = mult - 1;
         }
-        return  result;
+        memo.put(memoKey, result);
+        return result;
     }
 
-    private int solve() {
-        initialColor(graph.getAnyVertex(), new HashSet<>());
-        if (vertexToColor.size() != graph.vertexCount()) {
-            throw new IllegalStateException("it is not a simply connected graph");
-        }
-
-        List<String> num = new ArrayList<>(vertexToColor.keySet());
-
-        int currentIndex = 0;
-        String currentVertex = num.get(currentIndex);
-        while (true) {
-            int color = vertexToColor.get(currentVertex);
-            ++color;
-            if (color == colorsAvailable) {
-                vertexToColor.put(currentVertex, NO_COLOR);
-
-                if (currentIndex == 0) {
-                    return answer;
-                }
-                --currentIndex;
-                currentVertex = num.get(currentIndex);
-                continue;
-            }
-
-            vertexToColor.put(currentVertex, color);
-            ColorState colorState = graphIsGoodColored();
-            switch (colorState) {
-                case BAD:
-                    break;
-                case GOOD_INCOMPLETE:
-                    ++currentIndex;
-                    currentVertex = num.get(currentIndex);
-                    break;
-                case GOOD_COMPLETE:
-                    ++answer;
-                    break;
-            }
-        }
-    }
-
-    private ColorState graphIsGoodColored() {
-        boolean noColorDetected = false;
-        for (Map.Entry<String, Integer> entry : vertexToColor.entrySet()) {
-
-            if (entry.getValue() == NO_COLOR) {
-                noColorDetected = true;
-                continue;
-            }
-
-            for (String otherVertex : graph.edges(entry.getKey())) {
-                if (vertexToColor.get(otherVertex).equals(entry.getValue())) {
-                    return ColorState.BAD;
-                }
-            }
-
-        }
-        return noColorDetected ? ColorState.GOOD_INCOMPLETE : ColorState.GOOD_COMPLETE;
-    }
-
-    private void initialColor(String vertex, Set<String> visited) {
-
-        if (visited.contains(vertex)) {
-            return;
-        }
-        visited.add(vertex);
-        vertexToColor.put(vertex, NO_COLOR);
-        Iterable<String> iterable = graph.edges(vertex);
-        iterable.forEach(s -> initialColor(s, visited));
-    }
-
-    enum ColorState {
-        BAD, GOOD_INCOMPLETE, GOOD_COMPLETE;
-    }
 
     static class Graph {
 
         private final Map<String, Set<String>> data = new HashMap<>();
-
-
-        String getAnyVertex() {
-            return data.keySet().stream().findAny().get();
-        }
 
         Graph xcopy() {
             final Graph result = new Graph();
@@ -259,13 +220,6 @@ public class MapColorations3 {
                 throw new IllegalStateException("bad logic nonAdj");
             }
             return null;
-        }
-
-        Iterable<String> edges(String vertex) {
-            if (data.containsKey(vertex)) {
-                return data.get(vertex);
-            }
-            return new HashSet<>();
         }
 
         Graph addEdge(String vertex0, String vertex1) {
