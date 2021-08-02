@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 public class MapColorations {
 
     private final Map<MemoKey, Long> memo = new HashMap<>();
+    private final Map<String, Long> graphMemo = new HashMap<>();
     private final int colorsAvailable;
 
     public MapColorations(int colorsAvailable) {
@@ -44,29 +45,36 @@ public class MapColorations {
 
     private long solve(final Graph graph) {
 
+        final String fingerprint = graph.toString();
+        if (graphMemo.containsKey(fingerprint)) {
+            return graphMemo.get(fingerprint);
+        }
+
         //System.out.println(graph);
 
         // пока есть несмежные вершины
         String[] vertexes = graph.twoNonAdj();
         //System.out.println("found " + Arrays.toString(vertexes));
+
+        long result;
+
         if (vertexes == null) {
             if (graph.vertexCount() == 0) {
-                return 0;
+                result = 0;
             } else if (graph.vertexCount() == 1) {
-                return colorsAvailable;
+                result = colorsAvailable;
             } else {
                 //         System.out.print("old graph " + graph + " colorsMax " + colorsAvailable);
                 //         int solve = new MapColorations3(graph, colorsAvailable).solve();
-                long solve = fastSolve(graph.vertexCount(), colorsAvailable);
+                result = fastSolve(graph.vertexCount(), colorsAvailable);
                 //         System.out.println(": " + solve + " " + fastSolve(graph.vertexCount(), colorsAvailable));
-                return solve;
             }
         } else {
-            return solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1])) +
+            result = solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1])) +
                     solve(graph.xcopy().addEdge(vertexes[0], vertexes[1]).addEdge(vertexes[1], vertexes[0]));
-
         }
-
+        graphMemo.put(fingerprint, result);
+        return result;
     }
 
     private long fastSolve(int vertexCount, int colorCount) {
