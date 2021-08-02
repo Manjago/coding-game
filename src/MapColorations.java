@@ -12,6 +12,11 @@ import java.util.StringTokenizer;
 public class MapColorations {
 
     private final Map<MemoKey, Long> memo = new HashMap<>();
+    private final int colorsAvailable;
+
+    public MapColorations(int colorsAvailable) {
+        this.colorsAvailable = colorsAvailable;
+    }
 
     public static void main(String[] args) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
@@ -30,14 +35,14 @@ public class MapColorations {
             final int colorSetCount = Integer.parseInt(reader.readLine());
             for (int i = 0; i < colorSetCount; i++) {
                 final int colorsAvailable = Integer.parseInt(reader.readLine());
-                System.out.println(new MapColorations().solve(initialGraph, colorsAvailable));
+                System.out.println(new MapColorations(colorsAvailable).solve(initialGraph));
             }
 
         }
 
     }
 
-    private long solve(final Graph graph, final int colorsAvailable) {
+    private long solve(final Graph graph) {
 
         //System.out.println(graph);
 
@@ -57,8 +62,8 @@ public class MapColorations {
                 return solve;
             }
         } else {
-            return solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1]), colorsAvailable) +
-                    solve(graph.xcopy().addEdge(vertexes[0], vertexes[1]).addEdge(vertexes[1], vertexes[0]), colorsAvailable);
+            return solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1])) +
+                    solve(graph.xcopy().addEdge(vertexes[0], vertexes[1]).addEdge(vertexes[1], vertexes[0]));
 
         }
 
