@@ -92,8 +92,8 @@ public class MapColorations {
         long result = 1;
         int mult = colorCount;
         for (int i = 0; i < vertexCount; i++) {
-            result = result * mult;
-            mult = mult - 1;
+            result *= mult;
+            mult -= 1;
         }
         memo.put(memoKey, result);
         return result;
@@ -159,16 +159,14 @@ public class MapColorations {
             final Graph result = new Graph();
             for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
 
+                final String root;
+                if (entry.getKey().equals(vertex1)) {
+                    root = vertex0;
+                } else {
+                    root = entry.getKey();
+                }
 
                 for (String otherVertex : entry.getValue()) {
-
-                    final String root;
-                    if (entry.getKey().equals(vertex1)) {
-                        root = vertex0;
-                    } else {
-                        root = entry.getKey();
-                    }
-
 
                     if (otherVertex.equals(vertex1)) {
                         result.addEdge(root, vertex0);
