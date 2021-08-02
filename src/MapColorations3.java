@@ -22,6 +22,28 @@ C D
 
 
  */
+/*
+13
+France Germany
+France Italy
+France Switzerland
+France Spain
+Switzerland Germany
+Switzerland Italy
+Spain Portugal
+France Belgium
+Belgium Germany
+France Luxembourg
+Luxembourg Belgium
+Germany Netherlands
+Netherlands Belgium
+5
+1
+2
+4
+7
+11
+ */
 public class MapColorations3 {
 
     public static final int NO_COLOR = -1;
@@ -74,7 +96,11 @@ public class MapColorations3 {
             } else if (graph.vertexCount() == 1) {
                 return colorsAvailable;
             } else {
-                return new MapColorations3(graph, colorsAvailable).solve();
+       //         System.out.print("old graph " + graph + " colorsMax " + colorsAvailable);
+       //         int solve = new MapColorations3(graph, colorsAvailable).solve();
+                int solve = fastSolve(graph.vertexCount(), colorsAvailable);
+       //         System.out.println(": " + solve + " " + fastSolve(graph.vertexCount(), colorsAvailable));
+                return solve;
             }
         } else {
             return solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1]), colorsAvailable) +
@@ -82,6 +108,19 @@ public class MapColorations3 {
 
         }
 
+    }
+
+    private static int fastSolve(int vertexCount, int colorCount) {
+        if (colorCount < vertexCount) {
+            return 0;
+        }
+        int result = 1;
+        int mult = colorCount;
+        for (int i = 0; i < vertexCount; i++) {
+            result = result * mult;
+            mult = mult - 1;
+        }
+        return  result;
     }
 
     private int solve() {
