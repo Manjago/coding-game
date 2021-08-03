@@ -139,6 +139,106 @@ public class MapColorations {
         }
     }
 
+    static class FastGraph {
+        private final int maxVertexCount;
+        private final int[][] data;
+
+        public FastGraph(int maxVertexCount, int[][] data) {
+            this.maxVertexCount = maxVertexCount;
+            this.data = data;
+        }
+
+        public FastGraph(int maxVertexCount) {
+            this(maxVertexCount, new int[maxVertexCount + 1][maxVertexCount + 1]);
+        }
+
+        int vertexCount() {
+            return data[0][0];
+        }
+
+        FastGraph addEdge(int vertex0, int vertex1) {
+            int prev = data[vertex0][vertex1];
+
+            if (prev == 0) {
+                data[vertex0][vertex1] = 1;
+                if(data[vertex0][0]++ == 0) {
+                    ++data[0][0];
+                }
+            }
+            return this;
+        }
+
+        FastGraph addBiEdge(int v0, int v1) {
+            addEdge(v0, v1);
+            addEdge(v1, v0);
+            return this;
+        }
+
+        FastGraph xcopy() {
+            int[][] cp = new int[maxVertexCount + 1][maxVertexCount + 1];
+            for (int i = 0; i <= maxVertexCount; i++) {
+                System.arraycopy(data[i], 0, cp[i], 0, maxVertexCount + 1);
+            }
+            return new FastGraph(maxVertexCount, cp);
+        }
+
+        FastGraph deleteEdgeAndMerge(int vertex0, int vertex1) {
+            --data[0][0];
+            data[vertex1][0] = 0;
+
+            int newSum = 0;
+            for (int j = 1; j <= maxVertexCount; j++) {
+                data[vertex0][j] = data[vertex1][j] & data[vertex0][j];
+                newSum += data[vertex0][j];
+            }
+            data[vertex0][0] = newSum;
+
+            for (int i = 1; i <= maxVertexCount; i++) {
+                if (data[i][0] == 0 || data[i][vertex1] == 0) {
+                    continue;
+                }
+
+                if (data[i][vertex1] != 0) {
+                    data[i][vertex1] = 0;
+                    --data[i][0];
+                }
+                if (data[i][vertex0] == 0) {
+                    ++data[i][0];
+                    data[i][vertex0] = 1;
+                }
+
+            }
+
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            sb.append(data[0][0]);
+            for (int i = 1; i <= maxVertexCount; i++) {
+                if (data[i][0] == 0) {
+                    continue;
+                }
+                sb.append('[');
+                sb.append(i);
+                sb.append(':');
+                for (int j = 1; j <= maxVertexCount; j++) {
+                    if (data[i][j] != 0) {
+                        sb.append(j);
+                        sb.append(',');
+                    }
+                }
+                sb.append("(");
+                sb.append(data[i][0]);
+                sb.append(")");
+                sb.append(']');
+            }
+            return sb.toString();
+        }
+    }
+
+
     static class Graph {
 
         private final Map<String, Set<String>> data = new HashMap<>();
