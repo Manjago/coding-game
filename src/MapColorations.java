@@ -25,15 +25,17 @@ public class MapColorations {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
 
             final int edges = Integer.parseInt(reader.readLine());
-            final Graph initialGraph = new Graph();
 
+            final Renumer renumer = new Renumer();
             for (int i = 0; i < edges; i++) {
                 final StringTokenizer stringTokenizer = new StringTokenizer(reader.readLine());
                 final String v0 = stringTokenizer.nextToken();
                 final String v1 = stringTokenizer.nextToken();
-                initialGraph.addEdge(v0, v1);
-                initialGraph.addEdge(v1, v0);
+                renumer.add(v0, v1);
             }
+
+            final FastGraph initialGraph = new FastGraph(renumer.vertexCount());
+            renumer.fill(initialGraph);
 
             final int colorSetCount = Integer.parseInt(reader.readLine());
             for (int i = 0; i < colorSetCount; i++) {
@@ -45,9 +47,9 @@ public class MapColorations {
 
     }
 
-    private long solve(final Graph graph) {
+    private long solve(final FastGraph graph) {
 
-        final String fingerprint = graph.toString();
+        final String fingerprint = graph.fingerprint();
         if (graphMemo.containsKey(fingerprint)) {
             return graphMemo.get(fingerprint);
         }
@@ -55,7 +57,7 @@ public class MapColorations {
         //System.out.println(graph);
 
         // пока есть несмежные вершины
-        String[] vertexes = graph.twoNonAdj();
+        int[] vertexes = graph.twoNonAdj();
         //System.out.println("found " + Arrays.toString(vertexes));
 
         long result;
@@ -73,7 +75,7 @@ public class MapColorations {
             }
         } else {
             result = solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1])) +
-                    solve(graph.xcopy().addEdge(vertexes[0], vertexes[1]).addEdge(vertexes[1], vertexes[0]));
+                    solve(graph.xcopy().addBiEdge(vertexes[0], vertexes[1]));
         }
         graphMemo.put(fingerprint, result);
         return result;
@@ -226,7 +228,7 @@ public class MapColorations {
                         return new int[]{i, j};
                     }
                 }
-                throw new IllegalStateException("bad logic nonAdj");
+                throw new IllegalStateException("bad logic nonAdj " + this);
             }
             return null;
         }
@@ -275,88 +277,6 @@ public class MapColorations {
         }
     }
 
-
-    static class Graph {
-
-        private final Map<String, Set<String>> data = new HashMap<>();
-
-        Graph xcopy() {
-            final Graph result = new Graph();
-
-            for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
-                for (String otherVertex : entry.getValue()) {
-                    result.addEdge(entry.getKey(), otherVertex);
-                }
-            }
-
-            return result;
-        }
-
-        Graph deleteEdgeAndMerge(String vertex0, String vertex1) {
-            final Graph result = new Graph();
-            for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
-
-                final String root;
-                if (entry.getKey().equals(vertex1)) {
-                    root = vertex0;
-                } else {
-                    root = entry.getKey();
-                }
-
-                for (String otherVertex : entry.getValue()) {
-
-                    if (otherVertex.equals(vertex1)) {
-                        result.addEdge(root, vertex0);
-                    } else {
-                        result.addEdge(root, otherVertex);
-                    }
-                }
-            }
-            return result;
-        }
-
-
-        String[] twoNonAdj() {
-            for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
-                if (entry.getValue().size() == data.size() - 1) {
-                    continue;
-                }
-
-                final String pretender = entry.getKey();
-                for (String pretender2 : data.keySet()) {
-                    if (!pretender2.equals(pretender) && !entry.getValue().contains(pretender2)) {
-                        return new String[]{pretender, pretender2};
-                    }
-                }
-                throw new IllegalStateException("bad logic nonAdj");
-            }
-            return null;
-        }
-
-        Graph addEdge(String vertex0, String vertex1) {
-            final Set<String> edges;
-            if (!data.containsKey(vertex0)) {
-                edges = new HashSet<>();
-                data.put(vertex0, edges);
-            } else {
-                edges = data.get(vertex0);
-            }
-            edges.add(vertex1);
-            return this;
-        }
-
-        int vertexCount() {
-            return data.size();
-        }
-
-        @Override
-        public String toString() {
-            return "Graph{" +
-                    "data=" + data +
-                    '}';
-        }
-
-    }
 
     static class Renumer {
 
