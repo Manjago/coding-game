@@ -14,7 +14,6 @@ public class MapColorations {
     private final Map<MemoKey, Long> memo = new HashMap<>();
     private final Map<String, Long> graphMemo = new HashMap<>();
     private final int colorsAvailable;
-    private long debugCounter = 0;
 
     public MapColorations(int colorsAvailable) {
         this.colorsAvailable = colorsAvailable;
@@ -39,19 +38,14 @@ public class MapColorations {
             final int colorSetCount = Integer.parseInt(reader.readLine());
             for (int i = 0; i < colorSetCount; i++) {
                 final int colorsAvailable = Integer.parseInt(reader.readLine());
-                System.out.println(new MapColorations(colorsAvailable).solve(initialGraph, 0));
+                System.out.println(new MapColorations(colorsAvailable).solve(initialGraph));
             }
 
         }
 
     }
 
-    private long solve(final FastGraph graph, long parent) {
-
-        final long me = ++debugCounter;
-        //System.out.println("me " + me + "!!!");
-        final String s = "!" + parent + "->" + me + ":";
-        //System.out.println(s + "wanna solve " + graph);
+    private long solve(final FastGraph graph) {
 
         final String fingerprint = graph.fingerprint();
         if (graphMemo.containsKey(fingerprint)) {
@@ -60,30 +54,23 @@ public class MapColorations {
 
         // пока есть несмежные вершины
         int[] vertexes = graph.twoNonAdj();
-        //System.out.println(s + "got nonadj " + Arrays.toString(vertexes));
 
         long result;
 
         if (vertexes == null) {
             if (graph.vertexCount() == 0) {
                 result = 0;
-                //System.out.println(s + " no vertex result " + result);
             } else if (graph.vertexCount() == 1) {
                 result = colorsAvailable;
-                //System.out.println(s + " 1 vertex result allcolors " + result);
             } else {
                 result = fastSolve(graph.vertexCount(), colorsAvailable);
-                //System.out.println(s + " many vertex result combinatoric " + result);
             }
         } else {
             FastGraph graph1 = graph.xcopy().deleteEdgeAndMerge(vertexes[0], vertexes[1]);
-            //System.out.println(s + "from " + graph + " merge " + vertexes[0] + "," + vertexes[1] + " and get " + graph1);
 
             FastGraph graph2 = graph.xcopy().addBiEdge(vertexes[0], vertexes[1]);
-            //System.out.println(s + "to " + graph + " add " + vertexes[0] + "," + vertexes[1] + " and get " + graph2);
 
-            result = solve(graph1, me) + solve(graph2, me);
-            //System.out.println(s + " recusrsive result " + result);
+            result = solve(graph1) + solve(graph2);
         }
         graphMemo.put(fingerprint, result);
         return result;
