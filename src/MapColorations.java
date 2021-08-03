@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ public class MapColorations {
     private final Map<MemoKey, Long> memo = new HashMap<>();
     private final Map<String, Long> graphMemo = new HashMap<>();
     private final int colorsAvailable;
+    private long debugCounter = 0;
 
     public MapColorations(int colorsAvailable) {
         this.colorsAvailable = colorsAvailable;
@@ -39,16 +39,19 @@ public class MapColorations {
             final int colorSetCount = Integer.parseInt(reader.readLine());
             for (int i = 0; i < colorSetCount; i++) {
                 final int colorsAvailable = Integer.parseInt(reader.readLine());
-                System.out.println(new MapColorations(colorsAvailable).solve(initialGraph));
+                System.out.println(new MapColorations(colorsAvailable).solve(initialGraph, 0));
             }
 
         }
 
     }
 
-    private long solve(final FastGraph graph) {
+    private long solve(final FastGraph graph, long parent) {
 
-        System.out.println("!wanna solve " + graph);
+        final long me = ++debugCounter;
+        //System.out.println("me " + me + "!!!");
+        final String s = "!" + parent + "->" + me + ":";
+        //System.out.println(s + "wanna solve " + graph);
 
         final String fingerprint = graph.fingerprint();
         if (graphMemo.containsKey(fingerprint)) {
@@ -57,30 +60,30 @@ public class MapColorations {
 
         // пока есть несмежные вершины
         int[] vertexes = graph.twoNonAdj();
-        System.out.println("!got nonadj " + Arrays.toString(vertexes));
+        //System.out.println(s + "got nonadj " + Arrays.toString(vertexes));
 
         long result;
 
         if (vertexes == null) {
             if (graph.vertexCount() == 0) {
                 result = 0;
-                System.out.println("! no vertex result " + result);
+                //System.out.println(s + " no vertex result " + result);
             } else if (graph.vertexCount() == 1) {
                 result = colorsAvailable;
-                System.out.println("! 1 vertex result allcolors " + result);
+                //System.out.println(s + " 1 vertex result allcolors " + result);
             } else {
                 result = fastSolve(graph.vertexCount(), colorsAvailable);
-                System.out.println("! many vertex result combinatoric " + result);
+                //System.out.println(s + " many vertex result combinatoric " + result);
             }
         } else {
             FastGraph graph1 = graph.xcopy().deleteEdgeAndMerge(vertexes[0], vertexes[1]);
+            //System.out.println(s + "from " + graph + " merge " + vertexes[0] + "," + vertexes[1] + " and get " + graph1);
+
             FastGraph graph2 = graph.xcopy().addBiEdge(vertexes[0], vertexes[1]);
+            //System.out.println(s + "to " + graph + " add " + vertexes[0] + "," + vertexes[1] + " and get " + graph2);
 
-            System.out.println("from " + graph + " merge " + vertexes[0] + "," + vertexes[1] + " and get " + graph1);
-            System.out.println("to " + graph + " add " + vertexes[0] + "," + vertexes[1] + " and get " + graph2);
-
-            result = solve(graph1) + solve(graph2);
-            System.out.println("! recusrsive result " + result);
+            result = solve(graph1, me) + solve(graph2, me);
+            //System.out.println(s + " recusrsive result " + result);
         }
         graphMemo.put(fingerprint, result);
         return result;
@@ -193,7 +196,7 @@ public class MapColorations {
 
             int newSum = 0;
             for (int j = 1; j <= maxVertexCount; j++) {
-                data[vertex0][j] = data[vertex1][j] & data[vertex0][j];
+                data[vertex0][j] = data[vertex1][j] | data[vertex0][j];
                 newSum += data[vertex0][j];
             }
             data[vertex0][0] = newSum;
@@ -256,10 +259,12 @@ public class MapColorations {
         public String toString() {
             final StringBuilder sb = new StringBuilder();
             sb.append(data[0][0]);
+            int realVertex = 0;
             for (int i = 1; i <= maxVertexCount; i++) {
                 if (data[i][0] == 0) {
                     continue;
                 }
+                ++realVertex;
                 sb.append('[');
                 sb.append(i);
                 sb.append(':');
@@ -273,6 +278,9 @@ public class MapColorations {
                 sb.append(data[i][0]);
                 sb.append(")");
                 sb.append(']');
+            }
+            if (realVertex != data[0][0]) {
+                throw new IllegalStateException("bad graph " + sb);
             }
             return sb.toString();
         }
