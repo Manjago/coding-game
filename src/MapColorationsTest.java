@@ -34,6 +34,16 @@ public class MapColorationsTest {
         ltest(2, fastGraph.vertexCount());
         System.out.println(fastGraph);
         System.out.println(Arrays.toString(fastGraph.twoNonAdj()));
+
+        final MapColorations.Renumer renumer = new MapColorations.Renumer();
+        renumer.add("A", "B");
+        renumer.add("C", "D");
+        renumer.add("A", "D");
+        renumer.add("C", "B");
+        MapColorations.FastGraph testGraph = new MapColorations.FastGraph(renumer.vertexCount());
+        renumer.fill(testGraph);
+        System.out.println(testGraph);
+
     }
 
     private static void ltest(int expected, int actual) {

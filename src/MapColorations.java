@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -354,6 +356,39 @@ public class MapColorations {
                     '}';
         }
 
+    }
+
+    static class Renumer {
+
+        private final Map<String, Integer> nums = new HashMap<>();
+        private final List<Integer> left = new ArrayList<>();
+        private final List<Integer> right = new ArrayList<>();
+        private int counter = 0;
+
+
+        int vertexCount() {
+            return counter;
+        }
+
+        void add(String v0, String v1) {
+            left.add(setnum(v0));
+            right.add(setnum(v1));
+        }
+
+        void fill(FastGraph fastGraph) {
+            for (int i = 0; i < left.size(); i++) {
+                fastGraph.addBiEdge(left.get(i), right.get(i));
+            }
+        }
+
+        int setnum(String v) {
+            if (nums.containsKey(v)) {
+                return nums.get(v);
+            }
+            int result = ++counter;
+            nums.put(v, result);
+            return result;
+        }
     }
 }
 
