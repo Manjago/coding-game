@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 public class FoldingANote {
 
@@ -10,11 +9,15 @@ public class FoldingANote {
     private final int width;
     private final char[][][] data;
 
-    public FoldingANote(int height, int width) {
-        this.slices = 1;
+    public FoldingANote(int n) {
+        this(1, n, n, new char[1][n][n]);
+    }
+
+    private FoldingANote(int slices, int height, int width, char[][][] data) {
+        this.slices = slices;
         this.height = height;
         this.width = width;
-        data = new char[slices][height][width];
+        this.data = data;
     }
 
     public static void main(String[] args) throws IOException {
@@ -22,7 +25,7 @@ public class FoldingANote {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
 
             final int lines = Integer.parseInt(reader.readLine());
-            final FoldingANote solver = new FoldingANote(lines, lines);
+            final FoldingANote solver = new FoldingANote(lines);
 
             for (int i = 0; i < lines; i++) {
                 solver.init(i, reader.readLine());
@@ -33,12 +36,62 @@ public class FoldingANote {
 
     }
 
-    private void init(int num, String strdata) {
+    public void init(int num, String strdata) {
         char[] chars = strdata.toCharArray();
         if (width >= 0) System.arraycopy(chars, 0, data[0][num], 0, width);
     }
 
-    private String answer() {
+    public FoldingANote fold1() {
+
+        final int newSlices = slices * 2;
+        final int newWidth = width / 2;
+        final char[][][] newData = new char[newSlices][height][newWidth];
+
+        for (int s = 0; s < slices; s++) {
+            for (int i = 0; i < height; i++) {
+                if (newWidth >= 0) System.arraycopy(data[s][i], 0, newData[s][i], 0, newWidth);
+            }
+        }
+
+        int newS = slices;
+        for (int s = slices - 1; s >= 0; s--) {
+            for (int i = 0; i < height; i++) {
+                int newJ = 0;
+                for (int j = width - 1; j >= newWidth; j--) {
+                    newData[newS][i][newJ] = data[s][i][j];
+                    ++newJ;
+                }
+            }
+            ++newS;
+        }
+
+        return new FoldingANote(newSlices, height, newWidth, newData);
+    }
+
+    public FoldingANote fold2() {
+
+        final int newSlices = slices * 2;
+        final int newHeight = height / 2;
+        final char[][][] newData = new char[newSlices][newHeight][width];
+
+        for (int s = 0; s < slices; s++) {
+            for (int i = 0; i < newHeight; i++) {
+                System.arraycopy(data[s][i], 0, newData[s][i], 0, width);
+            }
+        }
+
+        int newS = slices;
+        for (int s = slices - 1; s >= 0; s--) {
+            for (int i = newHeight; i < height; i++) {
+                System.arraycopy(data[s][i], 0, newData[newS][i - newHeight], 0, width);
+            }
+            ++newS;
+        }
+
+        return new FoldingANote(newSlices, newHeight, width, newData);
+    }
+
+    public String answer() {
         System.out.println(this);
         return "A";
     }
