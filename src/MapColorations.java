@@ -212,6 +212,41 @@ public class MapColorations {
             return this;
         }
 
+        int[] twoNonAdj() {
+            int vertexCount = data[0][0];
+            for (int i = 1; i <= maxVertexCount ; i++) {
+                if (data[i][0] == vertexCount - 1 || data[i][0] == 0) {
+                    continue;
+                }
+
+                for (int j = 1; j <= maxVertexCount; j++) {
+                    if (i != j && data[i][j] == 0 && data[j][0] != 0) {
+                        return new int[]{i, j};
+                    }
+                }
+                throw new IllegalStateException("bad logic nonAdj");
+            }
+            return null;
+        }
+
+        String fingerprint() {
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= maxVertexCount; i++) {
+                if (data[i][0] == 0) {
+                    continue;
+                }
+                sb.append(i);
+                sb.append(':');
+                for (int j = 1; j <= maxVertexCount; j++) {
+                    if (data[i][j] != 0) {
+                        sb.append(j);
+                        sb.append(',');
+                    }
+                }
+            }
+            return sb.toString();
+        }
+
         @Override
         public String toString() {
             final StringBuilder sb = new StringBuilder();

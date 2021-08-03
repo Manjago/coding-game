@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class MapColorationsTest {
     public static void main(String[] args) {
         /*
@@ -14,7 +16,9 @@ public class MapColorationsTest {
         fastGraph.addBiEdge(3, 4);
         ltest(4, fastGraph.vertexCount());
         fastGraph.addBiEdge(4, 1);
+        System.out.println(fastGraph.fingerprint());
         System.out.println(fastGraph);
+        System.out.println(Arrays.toString(fastGraph.twoNonAdj()));
         ltest(4, fastGraph.vertexCount());
 
         MapColorations.FastGraph fastGraphClone = fastGraph.xcopy();
@@ -25,9 +29,11 @@ public class MapColorationsTest {
         ltest(3, fastGraph.vertexCount());
         System.out.println(fastGraph);
 
+        System.out.println(Arrays.toString(fastGraph.twoNonAdj()));
         fastGraph.deleteEdgeAndMerge(2, 4);
         ltest(2, fastGraph.vertexCount());
         System.out.println(fastGraph);
+        System.out.println(Arrays.toString(fastGraph.twoNonAdj()));
     }
 
     private static void ltest(int expected, int actual) {
