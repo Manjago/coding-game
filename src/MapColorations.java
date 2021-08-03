@@ -2,12 +2,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 // https://www.codingame.com/training/hard/map-colorations
@@ -49,33 +48,39 @@ public class MapColorations {
 
     private long solve(final FastGraph graph) {
 
+        System.out.println("!wanna solve " + graph);
+
         final String fingerprint = graph.fingerprint();
         if (graphMemo.containsKey(fingerprint)) {
             return graphMemo.get(fingerprint);
         }
 
-        //System.out.println(graph);
-
         // пока есть несмежные вершины
         int[] vertexes = graph.twoNonAdj();
-        //System.out.println("found " + Arrays.toString(vertexes));
+        System.out.println("!got nonadj " + Arrays.toString(vertexes));
 
         long result;
 
         if (vertexes == null) {
             if (graph.vertexCount() == 0) {
                 result = 0;
+                System.out.println("! no vertex result " + result);
             } else if (graph.vertexCount() == 1) {
                 result = colorsAvailable;
+                System.out.println("! 1 vertex result allcolors " + result);
             } else {
-                //         System.out.print("old graph " + graph + " colorsMax " + colorsAvailable);
-                //         int solve = new MapColorations3(graph, colorsAvailable).solve();
                 result = fastSolve(graph.vertexCount(), colorsAvailable);
-                //         System.out.println(": " + solve + " " + fastSolve(graph.vertexCount(), colorsAvailable));
+                System.out.println("! many vertex result combinatoric " + result);
             }
         } else {
-            result = solve(graph.deleteEdgeAndMerge(vertexes[0], vertexes[1])) +
-                    solve(graph.xcopy().addBiEdge(vertexes[0], vertexes[1]));
+            FastGraph graph1 = graph.xcopy().deleteEdgeAndMerge(vertexes[0], vertexes[1]);
+            FastGraph graph2 = graph.xcopy().addBiEdge(vertexes[0], vertexes[1]);
+
+            System.out.println("from " + graph + " merge " + vertexes[0] + "," + vertexes[1] + " and get " + graph1);
+            System.out.println("to " + graph + " add " + vertexes[0] + "," + vertexes[1] + " and get " + graph2);
+
+            result = solve(graph1) + solve(graph2);
+            System.out.println("! recusrsive result " + result);
         }
         graphMemo.put(fingerprint, result);
         return result;
@@ -88,10 +93,7 @@ public class MapColorations {
 
         final MemoKey memoKey = new MemoKey(vertexCount, colorCount);
         if (memo.containsKey(memoKey)) {
-            //  System.out.println("hit " + memoKey);
             return memo.get(memoKey);
-        } else {
-            // System.out.println("calc " + memoKey);
         }
         long result = 1;
         int mult = colorCount;
@@ -160,16 +162,15 @@ public class MapColorations {
             return data[0][0];
         }
 
-        FastGraph addEdge(int vertex0, int vertex1) {
+        void addEdge(int vertex0, int vertex1) {
             int prev = data[vertex0][vertex1];
 
             if (prev == 0) {
                 data[vertex0][vertex1] = 1;
-                if(data[vertex0][0]++ == 0) {
+                if (data[vertex0][0]++ == 0) {
                     ++data[0][0];
                 }
             }
-            return this;
         }
 
         FastGraph addBiEdge(int v0, int v1) {
@@ -218,7 +219,7 @@ public class MapColorations {
 
         int[] twoNonAdj() {
             int vertexCount = data[0][0];
-            for (int i = 1; i <= maxVertexCount ; i++) {
+            for (int i = 1; i <= maxVertexCount; i++) {
                 if (data[i][0] == vertexCount - 1 || data[i][0] == 0) {
                     continue;
                 }

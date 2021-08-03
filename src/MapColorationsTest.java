@@ -2,6 +2,18 @@ import java.util.Arrays;
 
 public class MapColorationsTest {
     public static void main(String[] args) {
+        allTests();
+    }
+
+    private static void allTests() {
+        test1();
+    }
+
+    private static void test2() {
+           final MapColorations.FastGraph g = new MapColorations.FastGraph(3);
+    }
+
+    private static void test1() {
         /*
         A-B
         | |
@@ -43,12 +55,11 @@ public class MapColorationsTest {
         MapColorations.FastGraph testGraph = new MapColorations.FastGraph(renumer.vertexCount());
         renumer.fill(testGraph);
         System.out.println(testGraph);
-
     }
 
     private static void ltest(int expected, int actual) {
         if (expected != actual) {
-            throw  new IllegalStateException("expected " + expected + ", actual " + actual);
+            throw new IllegalStateException("expected " + expected + ", actual " + actual);
         }
     }
 }
