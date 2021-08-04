@@ -28,6 +28,8 @@ public class FoldingANoteTest {
         System.out.println(after2);
         FoldingANote after3 = after2.smartfold3();
         System.out.println(after3);
+        FoldingANote after4 = after3.smartfold4();
+        System.out.println(after4);
 
     }
 
