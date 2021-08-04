@@ -1,17 +1,30 @@
 public class FoldingANoteTest {
 
     public static void main(String[] args) {
-        newTestBig();
+        validator1();
+        validator2();
     }
 
-    private static void newTest() {
+    private static void ltest(String expected, String actual) {
+        if (!expected.equals(actual)) {
+            throw new IllegalStateException("expected " + expected +", actual" + actual);
+        }
+    }
+
+    private static void validator1() {
         FoldingANote solver = new FoldingANote(2);
         solver.init(0, "OA");
         solver.init(1, "LM");
-        System.out.println(solver);
+        ltest("LMAO", FoldingANote.answer(solver));
+    }
 
-        FoldingANote after1 = solver.smartfold1();
-        System.out.println(after1);
+    private static void validator2() {
+        FoldingANote solver = new FoldingANote(4);
+        solver.init(0, "uDuu");
+        solver.init(1, "u!eu");
+        solver.init(2, "uudu");
+        solver.init(3, "uuuu");
+        ltest("Duuuuuuuuuuuude!", FoldingANote.answer(solver));
     }
 
     private static void newTestBig() {
@@ -30,20 +43,8 @@ public class FoldingANoteTest {
         System.out.println(after3);
         FoldingANote after4 = after3.smartfold4();
         System.out.println(after4);
+        System.out.println(after4.answer());
 
-    }
-
-    private static void oldTest() {
-        FoldingANote solver = new FoldingANote(2);
-        solver.init(0, "OA");
-        solver.init(1, "LM");
-        System.out.println(solver);
-
-        FoldingANote after1 = solver.fold1();
-        System.out.println(after1);
-
-        FoldingANote after2 = after1.fold2();
-        System.out.println(after2);
     }
 
 }

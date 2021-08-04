@@ -31,9 +31,38 @@ public class FoldingANote {
                 solver.init(i, reader.readLine());
             }
 
-            System.out.println(solver.answer());
+            System.out.println(answer(solver));
         }
 
+    }
+
+    public static String answer(FoldingANote start) {
+        FoldingANote current = start;
+        int direction = 1;
+
+        while (current.height != 1 || current.width != 1) {
+            switch (direction) {
+                case 1:
+                    current = current.smartfold1();
+                    break;
+                case 2:
+                    current = current.smartfold2();
+                    break;
+                case 3:
+                    current = current.smartfold3();
+                    break;
+                case 4:
+                    current = current.smartfold4();
+                    break;
+                default:
+                    throw new IllegalStateException("bad direction " + direction);
+            }
+            if (++direction > 4) {
+                direction = 1;
+            }
+        }
+
+        return current.answer();
     }
 
     public void init(int num, String strdata) {
@@ -109,60 +138,15 @@ public class FoldingANote {
         return new FoldingANote(newSlices, newHeight, width, newData);
     }
 
-    public FoldingANote fold1() {
-
-        final int newSlices = slices * 2;
-        final int newWidth = width / 2;
-        final char[][][] newData = new char[newSlices][height][newWidth];
-
-        for (int s = 0; s < slices; s++) {
-            for (int i = 0; i < height; i++) {
-                System.arraycopy(data[s][i], 0, newData[s][i], 0, newWidth);
-            }
-        }
-
-        int newS = slices;
-        for (int s = slices - 1; s >= 0; s--) {
-            for (int i = 0; i < height; i++) {
-                int newJ = 0;
-                for (int j = width - 1; j >= newWidth; j--) {
-                    newData[newS][i][newJ] = data[s][i][j];
-                    ++newJ;
-                }
-            }
-            ++newS;
-        }
-
-        return new FoldingANote(newSlices, height, newWidth, newData);
-    }
-
-    public FoldingANote fold2() {
-
-        final int newSlices = slices * 2;
-        final int newHeight = height / 2;
-        final char[][][] newData = new char[newSlices][newHeight][width];
-
-        for (int s = 0; s < slices; s++) {
-            for (int i = 0; i < newHeight; i++) {
-                System.arraycopy(data[s][i], 0, newData[s][i], 0, width);
-            }
-        }
-
-        int newS = slices;
-        for (int s = slices - 1; s >= 0; s--) {
-            for (int i = newHeight; i < height; i++) {
-                System.arraycopy(data[s][i], 0, newData[newS][i - newHeight], 0, width);
-            }
-            ++newS;
-        }
-
-        return new FoldingANote(newSlices, newHeight, width, newData);
-    }
-
-
     public String answer() {
-        System.out.println(this);
-        return "A";
+        if (height != 1 || width != 1) {
+            throw new IllegalStateException("" + this);
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (int s = slices - 1; s >= 0; s--) {
+            sb.append(data[s][0][0]);
+        }
+        return sb.toString();
     }
 
     @Override
