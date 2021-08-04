@@ -24,6 +24,8 @@ public class FoldingANoteTest {
 
         FoldingANote after1 = solver.smartfold1();
         System.out.println(after1);
+        FoldingANote after2 = after1.smartfold2();
+        System.out.println(after2);
     }
 
     private static void oldTest() {
