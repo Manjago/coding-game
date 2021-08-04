@@ -75,6 +75,23 @@ public class FoldingANote {
         return new FoldingANote(newSlices, newHeight, width, newData);
     }
 
+    public FoldingANote smartfold3() {
+        final int newSlices = slices * 2;
+        final int newWidth = width / 2;
+        final char[][][] newData = new char[newSlices][height][newWidth];
+
+        for (int s = 0; s < slices; s++) {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < newWidth; j++) {
+                    newData[s][i][j] = data[s][i][j + newWidth];
+                    newData[slices + s][i][j] = data[slices - 1 - s][i][newWidth - 1 - j];
+                }
+            }
+        }
+
+        return new FoldingANote(newSlices, height, newWidth, newData);
+    }
+
     public FoldingANote fold1() {
 
         final int newSlices = slices * 2;

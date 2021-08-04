@@ -26,6 +26,9 @@ public class FoldingANoteTest {
         System.out.println(after1);
         FoldingANote after2 = after1.smartfold2();
         System.out.println(after2);
+        FoldingANote after3 = after2.smartfold3();
+        System.out.println(after3);
+
     }
 
     private static void oldTest() {
