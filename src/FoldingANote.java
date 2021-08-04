@@ -41,6 +41,23 @@ public class FoldingANote {
         if (width >= 0) System.arraycopy(chars, 0, data[0][num], 0, width);
     }
 
+    public FoldingANote smartfold1() {
+        final int newSlices = slices * 2;
+        final int newWidth = width / 2;
+        final char[][][] newData = new char[newSlices][height][newWidth];
+
+        for (int s = 0; s < slices; s++) {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < newWidth; j++) {
+                    newData[s][i][j] = data[s][i][j];
+                    newData[slices + s][i][j] = data[slices - 1 - s][i][width - 1 - j];
+                }
+            }
+        }
+
+        return new FoldingANote(newSlices, height, newWidth, newData);
+    }
+
     public FoldingANote fold1() {
 
         final int newSlices = slices * 2;
@@ -49,7 +66,7 @@ public class FoldingANote {
 
         for (int s = 0; s < slices; s++) {
             for (int i = 0; i < height; i++) {
-                if (newWidth >= 0) System.arraycopy(data[s][i], 0, newData[s][i], 0, newWidth);
+                System.arraycopy(data[s][i], 0, newData[s][i], 0, newWidth);
             }
         }
 
@@ -90,6 +107,7 @@ public class FoldingANote {
 
         return new FoldingANote(newSlices, newHeight, width, newData);
     }
+
 
     public String answer() {
         System.out.println(this);
