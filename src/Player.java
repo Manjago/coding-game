@@ -97,12 +97,12 @@ class Player {
 
     public Move move(long start) {
 
-        if (humanCount == 1) {
-            return new Move(humanX[0], humanY[0], "Human");
-        }
-
         if (zombieCount == 1) {
             return new Move(zombieXNext[0], zombieYNext[0], "Zombie");
+        }
+
+        if (humanCount == 1) {
+            return new Move(humanX[0], humanY[0], "Human");
         }
 
         final int dangerIndex = mostDangerousZombie();
