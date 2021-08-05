@@ -7,13 +7,22 @@ import java.util.StringTokenizer;
 class Player {
 
     public static final int HUMAN_LIMIT = 100;
+    public static final int ZOMBIE_LIMIT = 100;
+
     private final int[] humanId = new int[HUMAN_LIMIT];
     private final int[] humanX = new int[HUMAN_LIMIT];
     private final int[] humanY = new int[HUMAN_LIMIT];
 
+    private final int[] zombieId = new int[ZOMBIE_LIMIT];
+    private final int[] zombieX = new int[ZOMBIE_LIMIT];
+    private final int[] zombieY = new int[ZOMBIE_LIMIT];
+    private final int[] zombieXNext = new int[ZOMBIE_LIMIT];
+    private final int[] zombieYNext = new int[ZOMBIE_LIMIT];
+
     private int meX;
     private int meY;
     private int humanCount;
+    private int zombieCount;
 
     public static void main(String[] args) throws IOException {
 
@@ -48,7 +57,7 @@ class Player {
                     final int zombieY = Integer.parseInt(zombieTokenizer.nextToken());
                     final int zombieXNext = Integer.parseInt(zombieTokenizer.nextToken());
                     final int zombieYNext = Integer.parseInt(zombieTokenizer.nextToken());
-                    player.setZombie(tick, zombieId, zombieX, zombieY, zombieXNext, zombieYNext);
+                    player.setZombie(tick, i, zombieId, zombieX, zombieY, zombieXNext, zombieYNext);
                 }
 
                 int[] moves = player.move(start);
@@ -74,15 +83,25 @@ class Player {
     }
 
     public void setZombieCount(long tick, int count) {
+        zombieCount = count;
     }
 
-    public void setZombie(long tick, int id, int x, int y, int nextX, int nextY) {
+    public void setZombie(long tick, int index, int id, int x, int y, int nextX, int nextY) {
+        zombieId[index] = id;
+        zombieX[index] = x;
+        zombieY[index] = y;
+        zombieXNext[index] = nextX;
+        zombieYNext[index] = nextY;
     }
 
     public int[] move(long start) {
 
         if (humanCount == 1) {
             return new int[]{humanX[0], humanY[0]};
+        }
+
+        if (zombieCount == 1) {
+            return new int[]{zombieXNext[0], zombieYNext[0]};
         }
 
         int targetX = 0;
