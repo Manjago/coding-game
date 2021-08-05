@@ -138,6 +138,17 @@ public class FoldingANote {
         return new FoldingANote(newSlices, newHeight, width, newData);
     }
 
+    public int[] find(char item) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (data[0][i][j] == item) {
+                    return new int[]{i, j};
+                }
+            }
+        }
+        return null;
+    }
+
     public String answer() {
         if (height != 1 || width != 1) {
             throw new IllegalStateException("" + this);
