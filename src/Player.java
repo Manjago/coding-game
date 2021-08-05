@@ -124,7 +124,7 @@ class Player {
     }
 
     private long dist(int x0, int y0, int x1, int y1) {
-        return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1);
+        return (long) (x0 - x1) * (x0 - x1) + (long) (y0 - y1) * (y0 - y1);
     }
 
     private int mostDangerousZombie() {
