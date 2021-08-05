@@ -4,11 +4,13 @@ import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-public class Player {
+class Player {
 
     public static final int HUMAN_LIMIT = 100;
+    private final int[] humanId = new int[HUMAN_LIMIT];
     private final int[] humanX = new int[HUMAN_LIMIT];
     private final int[] humanY = new int[HUMAN_LIMIT];
+
     private int meX;
     private int meY;
     private int humanCount;
@@ -34,7 +36,7 @@ public class Player {
                     final int humanId = Integer.parseInt(humanTokenizer.nextToken());
                     final int humanX = Integer.parseInt(humanTokenizer.nextToken());
                     final int humanY = Integer.parseInt(humanTokenizer.nextToken());
-                    player.setHuman(tick, humanId, humanX, humanY);
+                    player.setHuman(tick, i, humanId, humanX, humanY);
                 }
 
                 final int zombieCount = Integer.parseInt(reader.readLine());
@@ -65,9 +67,10 @@ public class Player {
         humanCount = count;
     }
 
-    public void setHuman(long tick, int id, int x, int y) {
-        humanX[id] = x;
-        humanY[id] = y;
+    public void setHuman(long tick, int index, int id, int x, int y) {
+        humanId[index] = id;
+        humanX[index] = x;
+        humanY[index] = y;
     }
 
     public void setZombieCount(long tick, int count) {
@@ -78,11 +81,21 @@ public class Player {
 
     public int[] move(long start) {
 
-        if (humanCount != 1) {
-            return new int[]{meX, meY};
+        if (humanCount == 1) {
+            return new int[]{humanX[0], humanY[0]};
         }
 
-        return new int[]{humanX[0], humanY[0]};
+        int targetX = 0;
+        int targetY = 0;
+        for (int i = 0; i < humanCount; i++) {
+            targetX += humanX[i];
+            targetY += humanY[i];
+        }
+        targetX = targetX / humanCount;
+        targetY = targetY / humanCount;
+
+        return new int[]{targetX, targetY};
+
     }
 }
 
