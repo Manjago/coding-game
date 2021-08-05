@@ -6,8 +6,9 @@ import java.util.StringTokenizer;
 
 class Player {
 
-    public static final int HUMAN_LIMIT = 100;
-    public static final int ZOMBIE_LIMIT = 100;
+    private static final int NOT_SET = -1;
+    private static final int HUMAN_LIMIT = 100;
+    private static final int ZOMBIE_LIMIT = 100;
 
     private final int[] humanId = new int[HUMAN_LIMIT];
     private final int[] humanX = new int[HUMAN_LIMIT];
@@ -60,9 +61,9 @@ class Player {
                     player.setZombie(tick, i, zombieId, zombieX, zombieY, zombieXNext, zombieYNext);
                 }
 
-                int[] moves = player.move(start);
+                Move move = player.move(start);
                 long delta = new Date().getTime() - start;
-                System.out.println("" + moves[0] + " " + moves[1] + " " + delta);
+                System.out.println("" + move.x + " " + move.y + " " + move.message);
             }
         }
     }
@@ -94,14 +95,19 @@ class Player {
         zombieYNext[index] = nextY;
     }
 
-    public int[] move(long start) {
+    public Move move(long start) {
 
         if (humanCount == 1) {
-            return new int[]{humanX[0], humanY[0]};
+            return new Move(humanX[0], humanY[0], "Human");
         }
 
         if (zombieCount == 1) {
-            return new int[]{zombieXNext[0], zombieYNext[0]};
+            return new Move(zombieXNext[0], zombieYNext[0], "Zombie");
+        }
+
+        final int dangerIndex = mostDangerousZombie();
+        if (dangerIndex != NOT_SET) {
+            return new Move(zombieXNext[dangerIndex], zombieYNext[dangerIndex], "Z " + zombieId[dangerIndex]);
         }
 
         int targetX = 0;
@@ -113,8 +119,48 @@ class Player {
         targetX = targetX / humanCount;
         targetY = targetY / humanCount;
 
-        return new int[]{targetX, targetY};
+        return new Move(targetX, targetY, "default");
 
     }
+
+    private long dist(int x0, int y0, int x1, int y1) {
+        return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1);
+    }
+
+    private int mostDangerousZombie() {
+        int zPretender = NOT_SET;
+        long zDistPretender = Long.MAX_VALUE;
+        for (int z = 0; z < zombieCount; z++) {
+
+            long distPretender = Long.MAX_VALUE;
+            for (int h = 0; h < humanCount; h++) {
+                final long dist = dist(zombieX[z], zombieY[z], humanX[z], humanY[z]);
+                if (dist < distPretender) {
+                    distPretender = dist;
+                }
+            }
+
+            if (distPretender < zDistPretender) {
+                zDistPretender = distPretender;
+                zPretender = z;
+            }
+
+        }
+        return zPretender;
+    }
+
+    static class Move {
+        private final int x;
+        private final int y;
+        private final String message;
+
+        Move(int x, int y, String message) {
+            this.x = x;
+            this.y = y;
+            this.message = message;
+        }
+    }
+
+
 }
 
