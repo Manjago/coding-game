@@ -1,3 +1,8 @@
+/*
+https://leetcode.com/problems/valid-sudoku/
+Runtime: 2 ms, faster than 76.95% of Java online submissions for Valid Sudoku.
+Memory Usage: 42.6 MB, less than 19.94% of Java online submissions for Valid Sudoku.
+ */
 class SudokuBoardNaive {
 
     private static final int[] DICT = {
@@ -19,6 +24,7 @@ class SudokuBoardNaive {
     public boolean isValidSudoku(char[][] board) {
 
         int checker;
+        int prevChecker;
 
         for (int i = 0; i < N; i++) {
             checker = 0;
@@ -28,11 +34,11 @@ class SudokuBoardNaive {
                     continue;
                 }
                 int digit = DICT[index];
-                if ((checker & digit) != 0) {
-                    System.out.println("0 "+ i + " " + j);
+
+                prevChecker = checker;
+                checker |= digit;
+                if (prevChecker == checker) {
                     return false;
-                } else {
-                    checker |= digit;
                 }
             }
         }
@@ -45,11 +51,10 @@ class SudokuBoardNaive {
                     continue;
                 }
                 int digit = DICT[index];
-                if ((checker & digit) != 0) {
-                    System.out.println("1 "+ i + " " + j);
+                prevChecker = checker;
+                checker |= digit;
+                if (prevChecker == checker) {
                     return false;
-                } else {
-                    checker |= digit;
                 }
             }
         }
@@ -65,11 +70,10 @@ class SudokuBoardNaive {
                             continue;
                         }
                         int digit = DICT[index];
-                        if ((checker & digit) != 0) {
-                            System.out.println("2 "+ i + " " + j);
+                        prevChecker = checker;
+                        checker |= digit;
+                        if (prevChecker == checker) {
                             return false;
-                        } else {
-                            checker |= digit;
                         }
                     }
                 }
